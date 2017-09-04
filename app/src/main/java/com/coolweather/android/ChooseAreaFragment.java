@@ -3,6 +3,7 @@ package com.coolweather.android;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.widget.LinearLayoutCompat;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import com.coolweather.android.db.City;
 import com.coolweather.android.db.County;
 import com.coolweather.android.db.Province;
+import com.coolweather.android.gson.Weather;
 import com.coolweather.android.util.HttpUtil;
 import com.coolweather.android.util.Utility;
 
@@ -81,6 +83,14 @@ public class ChooseAreaFragment extends Fragment{
               }else if(currentLevel==LEVEL_CITY){
                   selectedCity=cityList.get(position);
                   queryCounties();
+              } else if (currentLevel==LEVEL_COUNTY) {
+                  String weatherId=countyList.get(position).getWeatherId();
+                  String selectedCounty=countyList.get(position).getCountyName();
+                  Intent intent=new Intent(getActivity(), WeatherActivity.class);
+                  intent.putExtra("weather_id",weatherId);
+                  intent.putExtra("County",selectedCounty);
+                  startActivity(intent);
+              //    getActivity().finish();
               }
           }
         });
@@ -109,7 +119,7 @@ public class ChooseAreaFragment extends Fragment{
             listView.setSelection(0);
             currentLevel=LEVEL_PROVINCE;
         }else{
-            Log.d("First", "queryProvinces: ");
+
             String address="http://guolin.tech/api/china";
             queryFromServer(address,"province");
         }
@@ -133,7 +143,7 @@ public class ChooseAreaFragment extends Fragment{
         }
     }
     private void queryCounties(){
-        Log.d("hei", "queryCounties: ");
+
         titleText.setText(selectedCity.getCityName());
         backButton.setVisibility(View.VISIBLE);
         countyList=DataSupport.where("cityid=?",String.valueOf(selectedCity.getId())).find(County.class);
@@ -149,7 +159,7 @@ public class ChooseAreaFragment extends Fragment{
             int provinceCode=selectedProvince.getProvinceCode();
             int cityCode=selectedCity.getCityCode();
             String address="http://guolin.tech/api/china/"+provinceCode+"/"+cityCode;
-            Log.d(address, "queryCounties: ");
+
             queryFromServer(address,"county");
         }
     }
